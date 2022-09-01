@@ -1,6 +1,5 @@
 package com.airplanes.sonda.model;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -15,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Table(name = "aeronave")
+@Table(name = "Aeronave")
 public class Aeronave {
 	
 	@Id
@@ -39,7 +38,6 @@ public class Aeronave {
 	@Column(name = "ano")
 	private Integer ano;
 
-	@NotNull
 	@JsonProperty
 	@Column(name = "descricao")
 	private String descricao;
@@ -54,9 +52,16 @@ public class Aeronave {
 	@Column(name = "created")
 	private Date created;
 
-	@NotNull
 	@JsonProperty
 	@Column(name = "updated")
 	private Date updated;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 }
