@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.airplanes.sonda.exception.BusinessException;
 import com.airplanes.sonda.model.Aeronave;
 import com.airplanes.sonda.repository.AeronaveRepository;
 import com.airplanes.sonda.util.Util;
@@ -23,7 +24,7 @@ import com.google.gson.JsonObject;
 @Service
 public class AeronaveService {
 
-	private static final String ANE = "Aeronave não encontrada.";
+	private static final String AERONAVE_NAO_ENCONTRADA = "Aeronave não encontrada";
 
 	@Autowired
 	private AeronaveRepository aeronaveRepository;
@@ -34,7 +35,7 @@ public class AeronaveService {
 		return aeronaveRepository.findAll();
 	}
 
-	public List<Aeronave> listarAeronavesParametro(String parametro) {
+	public List<Aeronave> listarAeronavesParametro(String parametro) throws BusinessException {
 
 		JsonObject convertedObject = new Gson().fromJson(parametro, JsonObject.class);
 
@@ -51,16 +52,19 @@ public class AeronaveService {
 			if (aero.isPresent())
 				listagem.add(aero.get());
 		}
+		
+		if(listagem.isEmpty())
+			throw new BusinessException("Não foi possível localizar a aeronave.");
 
 		return listagem;
 
 	}
 
 	public Aeronave exibirDetalhes(Long id) {
-		return aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ANE));
+		return aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(AERONAVE_NAO_ENCONTRADA));
 	}
 
-	public ResponseEntity<Aeronave> gravarAeronave(Aeronave aeronave, HttpServletResponse response) throws Exception {
+	public ResponseEntity<Aeronave> gravarAeronave(Aeronave aeronave, HttpServletResponse response) throws BusinessException {
 
 		try {
 
@@ -71,15 +75,15 @@ public class AeronaveService {
 			return ResponseEntity.created(uri).body(aeronaveSalvar);
 
 		} catch (Exception e) {
-			throw new Exception(e.getMessage());
+			throw new BusinessException("Não foi possível gravar a aeronave.");
 		}
 
 	}
 
 	public ResponseEntity<Aeronave> atualizarAeronave(Long id, Aeronave aeronave, HttpServletResponse response)
-			throws Exception {
+			throws BusinessException {
 
-		aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ANE));
+		aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(AERONAVE_NAO_ENCONTRADA + " para atualizar"));
 
 		try {
 
@@ -91,19 +95,19 @@ public class AeronaveService {
 			return ResponseEntity.created(uri).body(aeronaveAtualizada);
 
 		} catch (Exception e) {
-			throw new Exception(e.getMessage());
+			throw new BusinessException("Não foi possível atualizar a aeronave.");
 		}
 	}
 
-	public void deletarAeronave(Long id) throws Exception {
+	public void deletarAeronave(Long id) throws BusinessException {
 
-		aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ANE));
+		aeronaveRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(AERONAVE_NAO_ENCONTRADA + " para deletar"));
 
 		try {
 			aeronaveRepository.deleteById(id);
 
 		} catch (Exception e) {
-			throw new Exception(e.getMessage());
+			throw new BusinessException("Não foi possível deletar a aeronave.");
 		}
 	}
 
